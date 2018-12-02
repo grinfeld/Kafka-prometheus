@@ -1,4 +1,4 @@
-It's fork from https://github.com/shlomihassan/Kafka-prometheus 
+It's forked from https://github.com/shlomihassan/Kafka-prometheus 
 
 # Running Chaos engineering
 
