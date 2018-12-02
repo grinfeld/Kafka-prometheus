@@ -8,6 +8,20 @@ networks:
   kafka:
 
 services:
+  kafka-monitor:
+    container_name: kafka-monitor
+    image: grinfeld/kafka-monitor
+    depends_on:
+      - prometheus
+    volumes:
+      - $PWD/kafka-monitor/kafka-monitor.properties:/opt/kafka-monitor/config/kafka-monitor.properties
+    ports:
+      - 8000:8000
+      - 8778:8778
+    networks:
+      - kafka
+    restart: always
+
   prometheus:
     container_name: prometheus
     image: prom/prometheus:v2.1.0
