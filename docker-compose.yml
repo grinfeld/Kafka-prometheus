@@ -15,9 +15,16 @@ services:
       - prometheus
     volumes:
       - $PWD/kafka-monitor/kafka-monitor.properties:/opt/kafka-monitor/config/kafka-monitor.properties
+      - $PWD/jmx_exporter/config.yml:/opt/jmx_exporter/config.yml
+      - $PWD/kafka-prometheus/libs/jmx_prometheus_javaagent-0.10.jar:/opt/jmx_exporter/jmx_prometheus_javaagent-0.10.jar
+    entrypoint:
+      - /opt/kafka-monitor/bin/kafka-monitor-start.sh
+      - /opt/kafka-monitor/config/kafka-monitor.properties
+      - '-javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent-0.10.jar=5559:/opt/jmx_exporter/config.yml'
     ports:
       - 8000:8000
       - 8778:8778
+      - 5559:5559
     networks:
       - kafka
     restart: always
@@ -68,7 +75,7 @@ services:
         - /bin/kafka_exporter
         - --kafka.server=kafka-1:19092
         - --kafka.server=kafka-2:29092
-        - --kafka.server=kafka-3:39092   
+        - --kafka.server=kafka-3:39092
     links:
       - kafka-1
       - kafka-2

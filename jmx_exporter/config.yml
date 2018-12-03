@@ -20,3 +20,7 @@ rules:
 - pattern : kafka.log<type=Log, name=LogEndOffset, topic=(.+), partition=(.+)><>Value
 - pattern : kafka.log<type=Log, name=LogStartOffset, topic=(.+), partition=(.+)><>Value
 - pattern : java.lang<type=(.*)>
+- pattern : kmf<type=(.+)><>([\w\d-]+)
+  name: kmf_$1_$2
+- pattern : kmf.services<type=(.+), name=(.+)><>([\w\d-]+)
+  name: kmf_services_$1_$2_$3

@@ -38,3 +38,7 @@ scrape_configs:
     static_configs:
      - targets:
        - kafka-3:5558
+  - job_name: 'kafka-monitor'
+    static_configs:
+     - targets:
+       - kafka-monitor:5559
