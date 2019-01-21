@@ -3,6 +3,7 @@ version: '3.1'
 volumes:
     prometheus_data: {}
     grafana_data: {}
+    portainer_data: {}
 
 networks:
   kafka:
@@ -73,7 +74,7 @@ services:
       - 9308:9308
     entrypoint:
         - /bin/kafka_exporter
-        - --kafka.server=kafka-1:19092
+        - --kafka.server=kafka-1:9092
         - --kafka.server=kafka-2:29092
         - --kafka.server=kafka-3:39092
     links:
@@ -102,7 +103,7 @@ services:
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
     networks:
       - kafka
-  
+
   zookeeper-2:
     container_name: zookeeper-2
     image: confluentinc/cp-zookeeper:latest
@@ -137,7 +138,7 @@ services:
     container_name: kafka-1
     hostname: kafka-1
     ports:
-     - 19092:19092
+     - 9092:9092
      - 5556:5556
     build: ./kafka-prometheus
     volumes:
@@ -153,7 +154,10 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:22181,zookeeper-2:32181,zookeeper-3:42181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+      #KAFKA_MIN_INSYNC_REPLICAS: 1
+      #KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      #KAFKA_REPLICATION_FACTOR: 2
       EXTRA_ARGS: "-javaagent:/usr/local/share/jars/jmx_prometheus_javaagent-0.10.jar=5556:/opt/jmx_exporter/config.yml "
     networks:
       - kafka
@@ -179,10 +183,13 @@ services:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:22181,zookeeper-2:32181,zookeeper-3:42181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:29092
+      #KAFKA_MIN_INSYNC_REPLICAS: 1
+      #KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      #KAFKA_REPLICATION_FACTOR: 2
       EXTRA_ARGS: "-javaagent:/usr/local/share/jars/jmx_prometheus_javaagent-0.10.jar=5557:/opt/jmx_exporter/config.yml "
     networks:
       - kafka
-  
+
   kafka-3:
     container_name: kafka-3
     hostname: kafka-3
@@ -204,6 +211,20 @@ services:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:22181,zookeeper-2:32181,zookeeper-3:42181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:39092
+      #KAFKA_MIN_INSYNC_REPLICAS: 1
+      #KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      #KAFKA_REPLICATION_FACTOR: 2
       EXTRA_ARGS: "-javaagent:/usr/local/share/jars/jmx_prometheus_javaagent-0.10.jar=5558:/opt/jmx_exporter/config.yml "
+    networks:
+      - kafka
+
+  portainer:
+    image: portainer/portainer
+    container_name: "portainer-app"
+    ports:
+      - 9000:9000
+    volumes:
+      - portainer_data:/data portainer/portainer
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - kafka
