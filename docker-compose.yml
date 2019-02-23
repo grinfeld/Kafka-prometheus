@@ -9,26 +9,26 @@ networks:
   kafka:
 
 services:
-  kafka-monitor:
-    container_name: kafka-monitor
-    image: grinfeld/kafka-monitor
-    depends_on:
-      - prometheus
-    volumes:
-      - $PWD/kafka-monitor/kafka-monitor.properties:/opt/kafka-monitor/config/kafka-monitor.properties
-      - $PWD/jmx_exporter/config.yml:/opt/jmx_exporter/config.yml
-      - $PWD/kafka-prometheus/libs/jmx_prometheus_javaagent-0.10.jar:/opt/jmx_exporter/jmx_prometheus_javaagent-0.10.jar
-    entrypoint:
-      - /opt/kafka-monitor/bin/kafka-monitor-start.sh
-      - /opt/kafka-monitor/config/kafka-monitor.properties
-      - '-javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent-0.10.jar=5559:/opt/jmx_exporter/config.yml'
-    ports:
-      - 8000:8000
-      - 8778:8778
-      - 5559:5559
-    networks:
-      - kafka
-    restart: always
+#  kafka-monitor:
+#    container_name: kafka-monitor
+#    image: grinfeld/kafka-monitor
+#    depends_on:
+#      - prometheus
+#    volumes:
+#      - $PWD/kafka-monitor/kafka-monitor.properties:/opt/kafka-monitor/config/kafka-monitor.properties
+#      - $PWD/jmx_exporter/config.yml:/opt/jmx_exporter/config.yml
+#      - $PWD/kafka-prometheus/libs/jmx_prometheus_javaagent-0.10.jar:/opt/jmx_exporter/jmx_prometheus_javaagent-0.10.jar
+#    entrypoint:
+#      - /opt/kafka-monitor/bin/kafka-monitor-start.sh
+#      - /opt/kafka-monitor/config/kafka-monitor.properties
+#      - '-javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent-0.10.jar=5559:/opt/jmx_exporter/config.yml'
+#    ports:
+#      - 8000:8000
+#      - 8778:8778
+#      - 5559:5559
+#    networks:
+#      - kafka
+#    restart: always
 
   prometheus:
     container_name: prometheus
@@ -48,6 +48,7 @@ services:
     networks:
       - kafka
     depends_on:
+      - portainer
       - kafka-exporter
     restart: always
 
@@ -55,6 +56,7 @@ services:
     container_name: grafana
     image: grafana/grafana
     depends_on:
+      - portainer
       - prometheus
     ports:
      - 3000:3000
@@ -84,6 +86,7 @@ services:
     networks:
       - kafka
     depends_on:
+      - portainer
       - kafka-1
       - kafka-2
       - kafka-3
@@ -101,6 +104,8 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+    depends_on:
+      - portainer
     networks:
       - kafka
 
@@ -116,6 +121,8 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+    depends_on:
+      - portainer
     networks:
       - kafka
 
@@ -131,6 +138,8 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+    depends_on:
+      - portainer
     networks:
       - kafka
   
@@ -148,6 +157,7 @@ services:
       - zookeeper-2
       - zookeeper-3
     depends_on:
+      - portainer
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
@@ -176,6 +186,7 @@ services:
       - zookeeper-2
       - zookeeper-3
     depends_on:
+      - portainer
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
@@ -204,6 +215,7 @@ services:
       - zookeeper-2
       - zookeeper-3
     depends_on:
+      - portainer
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
@@ -226,5 +238,28 @@ services:
     volumes:
       - portainer_data:/data portainer/portainer
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - kafka
+
+  storage:
+    image: openzipkin/zipkin-mysql
+    container_name: mysql
+    networks:
+      - kafka
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/tree/1.19.0/zipkin-server#environment-variables
+    environment:
+      - STORAGE_TYPE=mysql
+      # Point the zipkin at the storage backend
+      - MYSQL_HOST=mysql
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092
+    ports:
+      - 9411:9411
+    depends_on:
+      - storage
+      - kafka-1
     networks:
       - kafka
