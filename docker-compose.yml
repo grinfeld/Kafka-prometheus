@@ -6,7 +6,8 @@ volumes:
     portainer_data: {}
 
 networks:
-  kafka:
+  telemessage:
+    external: true
 
 services:
 #  kafka-monitor:
@@ -46,7 +47,7 @@ services:
     links:
       - kafka-exporter
     networks:
-      - kafka
+      - default
     depends_on:
       - portainer
       - kafka-exporter
@@ -66,7 +67,7 @@ services:
     env_file:
       - ./grafana/config.monitoring
     networks:
-      - kafka
+      - default
     restart: always
   
   kafka-exporter:
@@ -84,7 +85,7 @@ services:
       - kafka-2
       - kafka-3
     networks:
-      - kafka
+      - default
     depends_on:
       - portainer
       - kafka-1
@@ -107,7 +108,7 @@ services:
     depends_on:
       - portainer
     networks:
-      - kafka
+      - default
 
   zookeeper-2:
     container_name: zookeeper-2
@@ -124,7 +125,7 @@ services:
     depends_on:
       - portainer
     networks:
-      - kafka
+      - default
 
   zookeeper-3:
     container_name: zookeeper-3
@@ -141,7 +142,7 @@ services:
     depends_on:
       - portainer
     networks:
-      - kafka
+      - default
   
   kafka-1:
     container_name: kafka-1
@@ -170,7 +171,7 @@ services:
       #KAFKA_REPLICATION_FACTOR: 2
       EXTRA_ARGS: "-javaagent:/usr/local/share/jars/jmx_prometheus_javaagent-0.10.jar=5556:/opt/jmx_exporter/config.yml "
     networks:
-      - kafka
+      - default
 
   kafka-2:
     container_name: kafka-2
@@ -199,7 +200,7 @@ services:
       #KAFKA_REPLICATION_FACTOR: 2
       EXTRA_ARGS: "-javaagent:/usr/local/share/jars/jmx_prometheus_javaagent-0.10.jar=5557:/opt/jmx_exporter/config.yml "
     networks:
-      - kafka
+      - default
 
   kafka-3:
     container_name: kafka-3
@@ -228,7 +229,7 @@ services:
       #KAFKA_REPLICATION_FACTOR: 2
       EXTRA_ARGS: "-javaagent:/usr/local/share/jars/jmx_prometheus_javaagent-0.10.jar=5558:/opt/jmx_exporter/config.yml "
     networks:
-      - kafka
+      - default
 
   portainer:
     image: portainer/portainer
@@ -239,13 +240,13 @@ services:
       - portainer_data:/data portainer/portainer
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - kafka
+      - default
 
   storage:
     image: openzipkin/zipkin-mysql
     container_name: mysql
     networks:
-      - kafka
+      - default
 
   zipkin:
     image: openzipkin/zipkin
@@ -262,4 +263,69 @@ services:
       - storage
       - kafka-1
     networks:
-      - kafka
+      - default
+
+  debezium-connect:
+    build: ./debezium
+    container_name: debezium-connect
+    environment:
+      - CONFIG_STORAGE_TOPIC=my-connect-configs
+      - GROUP_ID=1
+      - OFFSET_STORAGE_TOPIC=my-connect-offsets
+      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+      #- ADVERTISED_HOST_NAME=$(echo $DOCKER_HOST | cut -f3  -d'/' | cut -f1 -d':')
+      - BOOTSTRAP_SERVERS=kafka-1:9092
+    ports:
+      - 8083:8083
+    networks:
+      - default
+      - telemessage
+
+  ksql-server:
+    image: "confluentinc/cp-ksql-server:5.2.1"
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka-1:9092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+    networks:
+      - default
+      - telemessage
+
+
+  cp-kafka-connect:
+    image: confluentinc/kafka-connect-datagen:latest
+    build: ./cp-kafka-connect
+    container_name: kafka-connect
+    hostname: connect
+    ports:
+      - "8084:8084"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: 'kafka-1:9092'
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_PORT: 8084
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLED: "false"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLED: "false"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_ZOOKEEPER_CONNECT: 'zookeeper-1:22181'
+      # Assumes image is based on confluentinc/kafka-connect-datagen:latest which is pulling 5.1.1 Connect image
+      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-5.2.1.jar
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+      CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+    command: "bash -c 'if [ ! -d /usr/share/confluent-hub-components/confluentinc-kafka-connect-datagen ]; then echo \"WARNING: Did not find directory for kafka-connect-datagen (did you remember to run: docker-compose up -d --build ?)\"; fi ; /etc/confluent/docker/run'"
+    networks:
+      - default
+      - telemessage
+

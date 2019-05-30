@@ -1,0 +1,20 @@
+{
+  "name": "jdbc-oracle-sink",
+  "config": {
+    "connector.class" : "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "tasks.max" : "1",
+    "topics": "MAIL_RELAY_STATUS",
+    "connection.url" : "jdbc:oracle:thin:@192.168.1.12:1521:tlmrnd",
+    "connection.user": "MIKHAIL",
+    "connection.password": "MIKHAIL",
+    "database.history.kafka.bootstrap.servers" : "kafka-1:9092",
+    "auto.create": "true",
+    "insert.mode": "insert",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "key.converter.schemas.enable": "false",
+    "pk.mode": "none",
+    "auto.evolve": "true",
+    "name": "jdbc-oracle-sink"
+  }
+}
