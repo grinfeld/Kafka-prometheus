@@ -1,0 +1,42 @@
+version: '3.1'
+
+networks:
+  telemessage:
+    external: true
+
+services:
+ 
+  zookeeper-1:
+    container_name: zookeeper-1
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+     - 22181:22181
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zookeeper-1:22888:23888
+    networks:
+      - default
+      - telemessage
+  
+  kafka-1:
+    container_name: kafka-1
+    hostname: kafka-1
+    ports:
+     - 9092:9092
+     - 5556:5556
+    build: ./kafka-prometheus
+    links:
+      - zookeeper-1
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:22181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+    networks:
+      - default
+      - telemessage
