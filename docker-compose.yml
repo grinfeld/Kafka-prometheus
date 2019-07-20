@@ -6,7 +6,7 @@ volumes:
     portainer_data: {}
 
 networks:
-  telemessage:
+  ext_network:
     external: true
 
 services:
@@ -280,7 +280,7 @@ services:
       - 8083:8083
     networks:
       - default
-      - telemessage
+      - ext_network
 
   ksql-server:
     image: "confluentinc/cp-ksql-server:5.2.1"
@@ -289,7 +289,7 @@ services:
       KSQL_LISTENERS: http://0.0.0.0:8088
     networks:
       - default
-      - telemessage
+      - ext_network
 
 
   cp-kafka-connect:
@@ -327,5 +327,5 @@ services:
     command: "bash -c 'if [ ! -d /usr/share/confluent-hub-components/confluentinc-kafka-connect-datagen ]; then echo \"WARNING: Did not find directory for kafka-connect-datagen (did you remember to run: docker-compose up -d --build ?)\"; fi ; /etc/confluent/docker/run'"
     networks:
       - default
-      - telemessage
+      - ext_network
 
