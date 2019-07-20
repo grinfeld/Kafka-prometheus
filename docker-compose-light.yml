@@ -1,9 +1,5 @@
 version: '3.1'
 
-networks:
-  ext_network:
-    external: true
-
 services:
 
   zookeeper-1:
