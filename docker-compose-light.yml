@@ -242,7 +242,7 @@ services:
     volumes:
       - ./mirror_maker/consumer.cfg:/etc/consumer.cfg
       - ./mirror_maker/producer.cfg:/etc/producer.cfg
-    command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist=.*"
+    command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist='.*'"
     networks:
       - kafka1
       - kafka2
