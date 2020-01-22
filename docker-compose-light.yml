@@ -231,3 +231,19 @@ services:
     networks:
       - kafka2
       - ext_network
+
+  mirror-maker-1:
+    container_name: mirror-1
+    image: confluentinc/cp-kafka:5.4.0
+    environment:
+      - "NUM_THREADS=4"
+      - "PRODUCER_CONFIG=/etc/producer.cfg"
+      - "CONSUMER_CONFIG=/etc/consumer.cfg"
+    volumes:
+      - ./mirror_maker/consumer.cfg:/etc/consumer.cfg
+      - ./mirror_maker/producer.cfg:/etc/producer.cfg
+    command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist=.*"
+    networks:
+      - kafka1
+      - kafka2
+      - ext_network
