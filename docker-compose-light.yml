@@ -251,6 +251,8 @@ services:
     # mirror-maker 2.x
     command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters source dest"
     # --clusters kafka-source kafka-dest"
+    healthcheck:
+      disable: true
     networks:
       - kafka1
       - kafka2
