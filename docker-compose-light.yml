@@ -1,3 +1,6 @@
+# 1. you need to create external network (kafka1,kafka2...): docker network create
+# 2. if you run docker locally: add 127.0.0.1 kafka-1 (and all kafka's and zookeepers amd mirror into your /etc/hosts)
+
 version: '3.1'
 
 networks:
@@ -237,21 +240,21 @@ services:
     image: confluentinc/cp-kafka-connect-base:5.4.0
     ports:
       - 8083:8083
-    environment:
-      - "NUM_THREADS=4"
-      - "PRODUCER_CONFIG=/etc/producer.cfg"
-      - "CONSUMER_CONFIG=/etc/consumer.cfg"
+#    environment: # mirror-maker 1.x and use of local docker
+#      - "NUM_THREADS=4" # mirror-maker 1.x and use of local docker
+#      - "PRODUCER_CONFIG=/etc/producer.cfg" # mirror-maker 1.x and use of local docker
+#      - "CONSUMER_CONFIG=/etc/consumer.cfg" # mirror-maker 1.x and use of local docker
     volumes:
-      - ./mirror_maker/consumer.cfg:/etc/consumer.cfg
-      - ./mirror_maker/producer.cfg:/etc/producer.cfg
+#      - ./mirror_maker/consumer.cfg:/etc/consumer.cfg # mirror-maker 1.x
+#      - ./mirror_maker/producer.cfg:/etc/producer.cfg # mirror-maker 1.x
       - ./mirror_maker/mm2.properties:/etc/mm2.properties
       - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
     # mirror-maker 1.x
     #command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist='.*'"
     # mirror-maker 2.x
-    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters source dest"
-#    healthcheck:
-#      disable: true
+    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters A B"
+    healthcheck:
+      disable: true
     networks:
       - kafka1
       - kafka2
