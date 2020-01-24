@@ -252,7 +252,7 @@ services:
     # mirror-maker 1.x
     #command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist='.*'"
     # mirror-maker 2.x
-    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters A B"
+    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
     healthcheck:
       disable: true
     networks:
