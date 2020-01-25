@@ -78,6 +78,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:12181,zookeeper-3:22181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     networks:
       - kafka1
       - ext_network
@@ -189,6 +190,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-4:32181,zookeeper-5:42181,zookeeper-6:52181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-4:39092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     networks:
       - kafka2
       - ext_network
@@ -252,7 +254,7 @@ services:
     # mirror-maker 1.x
     #command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist='.*'"
     # mirror-maker 2.x
-    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+    command: "bash -c 'kafka-topics --bootstrap-server kafka-1:9092 --create --partitions 3 --replication-factor 3 --topic received-messages && kafka-topics --bootstrap-server kafka-1:9092 --create --partitions 3 --replication-factor 3 --topic ready-messages && connect-mirror-maker /etc/mm2.properties --clusters src dest'"
     depends_on:
       - kafka-1
       - kafka-2
