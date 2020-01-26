@@ -242,10 +242,6 @@ services:
     image: confluentinc/cp-kafka-connect-base:5.4.0
     ports:
       - 19083:8083
-#    environment: # mirror-maker 1.x and use of local docker
-#      - "NUM_THREADS=4" # mirror-maker 1.x and use of local docker
-#      - "PRODUCER_CONFIG=/etc/producer.cfg" # mirror-maker 1.x and use of local docker
-#      - "CONSUMER_CONFIG=/etc/consumer.cfg" # mirror-maker 1.x and use of local docker
     volumes:
       - ./mirror_maker/mm2.properties:/etc/mm2.properties
       - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
