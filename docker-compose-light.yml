@@ -268,3 +268,6 @@ services:
       - kafka1
       - kafka2
       - ext_network
+
+# check kafka's __consumer_offsets in readable format
+# kafka-console-consumer.sh --formatter "kafka.coordinator.group.GroupMetadataManager\$OffsetsMessageFormatter" --zookeeper localhost:2181 --topic __consumer_offsets
