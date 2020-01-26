@@ -15,7 +15,7 @@ services:
 
   zookeeper-1:
     container_name: zookeeper-1
-    image: confluentinc/cp-zookeeper:5.4.0
+    image: confluentinc/cp-zookeeper:4.1.1
     ports:
       - 2181:2181
     environment:
@@ -31,7 +31,7 @@ services:
 
   zookeeper-2:
     container_name: zookeeper-2
-    image: confluentinc/cp-zookeeper:5.4.0
+    image: confluentinc/cp-zookeeper:4.1.1
     ports:
       - 12181:12181
     environment:
@@ -47,7 +47,7 @@ services:
 
   zookeeper-3:
     container_name: zookeeper-3
-    image: confluentinc/cp-zookeeper:5.4.0
+    image: confluentinc/cp-zookeeper:4.1.1
     ports:
       - 22181:22181
     environment:
@@ -65,7 +65,7 @@ services:
     container_name: kafka-1
     ports:
       - 9092:9092
-    image: confluentinc/cp-kafka:5.4.0
+    image: confluentinc/cp-kafka:4.1.1
     links:
       - zookeeper-1
       - zookeeper-2
@@ -87,7 +87,7 @@ services:
     container_name: kafka-2
     ports:
       - 19092:19092
-    image: confluentinc/cp-kafka:5.4.0
+    image: confluentinc/cp-kafka:4.1.1
     links:
       - zookeeper-1
       - zookeeper-2
@@ -108,7 +108,7 @@ services:
     container_name: kafka-3
     ports:
       - 29092:29092
-    image: confluentinc/cp-kafka:5.4.0
+    image: confluentinc/cp-kafka:4.1.1
     links:
       - zookeeper-1
       - zookeeper-2
@@ -241,19 +241,14 @@ services:
     container_name: mirror-1
     image: confluentinc/cp-kafka-connect-base:5.4.0
     ports:
-      - 8083:8083
+      - 19083:8083
 #    environment: # mirror-maker 1.x and use of local docker
 #      - "NUM_THREADS=4" # mirror-maker 1.x and use of local docker
 #      - "PRODUCER_CONFIG=/etc/producer.cfg" # mirror-maker 1.x and use of local docker
 #      - "CONSUMER_CONFIG=/etc/consumer.cfg" # mirror-maker 1.x and use of local docker
     volumes:
-#      - ./mirror_maker/consumer.cfg:/etc/consumer.cfg # mirror-maker 1.x
-#      - ./mirror_maker/producer.cfg:/etc/producer.cfg # mirror-maker 1.x
       - ./mirror_maker/mm2.properties:/etc/mm2.properties
       - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
-    # mirror-maker 1.x
-    #command: bash -c "kafka-mirror-maker --consumer.config /etc/consumer.cfg --producer.config /etc/producer.cfg --num.streams 4 --whitelist='.*'"
-    # mirror-maker 2.x
     command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
     depends_on:
       - kafka-1
@@ -262,6 +257,54 @@ services:
       - kafka-4
       - kafka-5
       - kafka-6
+    healthcheck:
+      disable: true
+    networks:
+      - kafka1
+      - kafka2
+      - ext_network
+
+  mirror-maker-2:
+    container_name: mirror-2
+    image: confluentinc/cp-kafka-connect-base:5.4.0
+    ports:
+      - 29083:8083
+    volumes:
+      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
+    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - kafka-4
+      - kafka-5
+      - kafka-6
+      - mirror-maker-1
+    healthcheck:
+      disable: true
+    networks:
+      - kafka1
+      - kafka2
+      - ext_network
+
+  mirror-maker-3:
+    container_name: mirror-3
+    image: confluentinc/cp-kafka-connect-base:5.4.0
+    ports:
+      - 39083:8083
+    volumes:
+      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
+    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - kafka-4
+      - kafka-5
+      - kafka-6
+      - mirror-maker-2
     healthcheck:
       disable: true
     networks:
