@@ -245,6 +245,7 @@ services:
     volumes:
       - ./mirror_maker/mm2.properties:/etc/mm2.properties
       - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
+      - ./mirror_maker/connect-mirror-impl-1.0-SNAPSHOT.jar:/usr/share/java/kafka/connect-mirror-impl-1.0-SNAPSHOT.jar
     command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
     depends_on:
       - kafka-1
@@ -260,53 +261,53 @@ services:
       - kafka2
       - ext_network
 
-  mirror-maker-2:
-    container_name: mirror-2
-    image: confluentinc/cp-kafka-connect-base:5.4.0
-    ports:
-      - 29083:8083
-    volumes:
-      - ./mirror_maker/mm2.properties:/etc/mm2.properties
-      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
-    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-      - kafka-4
-      - kafka-5
-      - kafka-6
-      - mirror-maker-1
-    healthcheck:
-      disable: true
-    networks:
-      - kafka1
-      - kafka2
-      - ext_network
-
-  mirror-maker-3:
-    container_name: mirror-3
-    image: confluentinc/cp-kafka-connect-base:5.4.0
-    ports:
-      - 39083:8083
-    volumes:
-      - ./mirror_maker/mm2.properties:/etc/mm2.properties
-      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
-    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-      - kafka-4
-      - kafka-5
-      - kafka-6
-      - mirror-maker-2
-    healthcheck:
-      disable: true
-    networks:
-      - kafka1
-      - kafka2
-      - ext_network
+#  mirror-maker-2:
+#    container_name: mirror-2
+#    image: confluentinc/cp-kafka-connect-base:5.4.0
+#    ports:
+#      - 29083:8083
+#    volumes:
+#      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+#      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
+#    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+#    depends_on:
+#      - kafka-1
+#      - kafka-2
+#      - kafka-3
+#      - kafka-4
+#      - kafka-5
+#      - kafka-6
+#      - mirror-maker-1
+#    healthcheck:
+#      disable: true
+#    networks:
+#      - kafka1
+#      - kafka2
+#      - ext_network
+#
+#  mirror-maker-3:
+#    container_name: mirror-3
+#    image: confluentinc/cp-kafka-connect-base:5.4.0
+#    ports:
+#      - 39083:8083
+#    volumes:
+#      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+#      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
+#    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+#    depends_on:
+#      - kafka-1
+#      - kafka-2
+#      - kafka-3
+#      - kafka-4
+#      - kafka-5
+#      - kafka-6
+#      - mirror-maker-2
+#    healthcheck:
+#      disable: true
+#    networks:
+#      - kafka1
+#      - kafka2
+#      - ext_network
 
 # check kafka's __consumer_offsets in readable format
 # kafka-console-consumer.sh --formatter "kafka.coordinator.group.GroupMetadataManager\$OffsetsMessageFormatter" --zookeeper localhost:2181 --topic __consumer_offsets
