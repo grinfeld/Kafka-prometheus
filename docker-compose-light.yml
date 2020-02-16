@@ -245,8 +245,10 @@ services:
     volumes:
       - ./mirror_maker/mm2.properties:/etc/mm2.properties
       - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
-      - ./mirror_maker/connect-mirror-impl-1.0-SNAPSHOT.jar:/usr/share/java/kafka/connect-mirror-impl-1.0-SNAPSHOT.jar
+#      - ./mirror_maker/connect-mirror-impl-1.0-SNAPSHOT.jar:/usr/share/java/kafka/connect-mirror-impl-1.0-SNAPSHOT.jar
     command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx2G"
     depends_on:
       - kafka-1
       - kafka-2
