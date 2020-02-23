@@ -1,0 +1,22 @@
+{
+  "name": "MirrorSourceConnector",
+  "config":{
+    "connector.class":"org.apache.kafka.connect.mirror.MirrorSourceConnector",
+    "source.cluster.producer.bootstrap.servers":"kafka-1:9092,kafka-2:19092,kafka-3:29092",
+    "topics":".*",
+    "replication.policy.class":"com.dynamicyield.kafka.mirror.policies.NoPrefixReplicationPolicy",
+    "source.cluster.alias":"src",
+    "source.cluster.bootstrap.servers":"kafka-1:9092,kafka-2:19092,kafka-3:29092",
+    "target.cluster.producer.bootstrap.servers":"kafka-4:39092,kafka-5:49092,kafka-6:59092",
+    "enabled":"true",
+    "target.cluster.admin.bootstrap.servers":"kafka-4:39092,kafka-5:49092,kafka-6:59092",
+    "target.cluster.alias":"dest",
+    "target.cluster.consumer.bootstrap.servers":"kafka-4:39092,kafka-5:49092,kafka-6:59092",
+    "name":"MirrorSourceConnector",
+    "target.cluster.bootstrap.servers":"kafka-4:39092,kafka-5:49092,kafka-6:59092",
+    "source.cluster.admin.bootstrap.servers":"kafka-1:9092,kafka-2:19092,kafka-3:29092",
+    "source.cluster.consumer.bootstrap.servers":"kafka-1:9092,kafka-2:19092,kafka-3:29092",
+    "sync.topic.acls.enabled": "false",
+    "schemas.enable": "false"
+  }
+}

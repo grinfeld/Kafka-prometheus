@@ -239,16 +239,26 @@ services:
 
   mirror-maker-1:
     container_name: mirror-1
-    image: confluentinc/cp-kafka-connect-base:5.4.0
+    build: ./mirror_maker
     ports:
       - 19083:8083
     volumes:
-      - ./mirror_maker/mm2.properties:/etc/mm2.properties
-      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
-#      - ./mirror_maker/connect-mirror-impl-1.0-SNAPSHOT.jar:/usr/share/java/kafka/connect-mirror-impl-1.0-SNAPSHOT.jar
-    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+#      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+      - ./mirror_maker/log4j.properties:/etc/kafka/connect-log4j.properties
+      - ./mirror_maker/connect-mirror-impl-1.0-SNAPSHOT.jar:/usr/share/java/kafka/connect-mirror-impl-1.0-SNAPSHOT.jar
+      - ./mirror_maker/kafka-mirror-custom-policies-0.0.1-SNAPSHOT.jar:/usr/share/java/kafka/kafka-mirror-custom-policies-0.0.1-SNAPSHOT.jar
+#    command: bash -c "/etc/kafka-connect/connect-start"
     environment:
       KAFKA_HEAP_OPTS: "-Xms256M -Xmx2G"
+      CONNECT_BOOTSTRAP_SERVERS: "kafka-4:39092,kafka-5:49092,kafka-6:59092"
+      CONNECT_GROUP_ID: "mirror-maker"
+      CONNECT_CONFIG_STORAGE_TOPIC: "mm2-configs.src.internal"
+      CONNECT_OFFSET_STORAGE_TOPIC: "mm2-offsets.src.internal"
+      CONNECT_STATUS_STORAGE_TOPIC: "mm2-status.src.internal"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: 19083
+      CONFLUENT_VERSION: "5.4.0"
     depends_on:
       - kafka-1
       - kafka-2
@@ -262,6 +272,41 @@ services:
       - kafka1
       - kafka2
       - ext_network
+
+#  mirror-maker-2:
+#    container_name: mirror-2
+#    image: confluentinc/cp-kafka-connect:5.4.0
+#    ports:
+#      - 29083:8083
+#    volumes:
+##      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+##      - ./mirror_maker/log4j.properties:/usr/config/connect-log4j.properties
+#      - ./mirror_maker/log4j.properties:/etc/kafka/connect-log4j.properties
+#      - ./mirror_maker/connect-mirror-impl-1.0-SNAPSHOT.jar:/usr/share/java/kafka/connect-mirror-impl-1.0-SNAPSHOT.jar
+##    command: bash -c "connect-mirror-maker /etc/mm2.properties --clusters src dest"
+#    environment:
+#      KAFKA_HEAP_OPTS: "-Xms256M -Xmx2G"
+#      CONNECT_BOOTSTRAP_SERVERS: "kafka-4:39092,kafka-5:49092,kafka-6:59092"
+#      CONNECT_GROUP_ID: "mirror-maker"
+#      CONNECT_CONFIG_STORAGE_TOPIC: "mm2-configs.src.internal"
+#      CONNECT_OFFSET_STORAGE_TOPIC: "mm2-offsets.src.internal"
+#      CONNECT_STATUS_STORAGE_TOPIC: "mm2-status.src.internal"
+#      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+#      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+#      CONNECT_REST_ADVERTISED_HOST_NAME: 29083
+#    depends_on:
+#      - kafka-1
+#      - kafka-2
+#      - kafka-3
+#      - kafka-4
+#      - kafka-5
+#      - kafka-6
+#    healthcheck:
+#      disable: true
+#    networks:
+#      - kafka1
+#      - kafka2
+#      - ext_network
 
 #  mirror-maker-2:
 #    container_name: mirror-2

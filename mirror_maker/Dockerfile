@@ -1,13 +1,13 @@
-FROM confluentinc/cp-kafka
+FROM confluentinc/cp-kafka-connect
 
-ARG CONSUMER_CONFIG
-ENV CONSUMER_CONFIG=${CONSUMER_CONFIG}
+ADD first-start.sh /etc/confluent/docker/first-start.sh
 
-ARG PRODUCER_CONFIG
-ENV PRODUCER_CONFIG=${PRODUCER_CONFIG}
+VOLUME ["/scripts"]
 
-ARG NUM_THREADS
-ENV NUM_THREADS=${NUM_THREADS}
+ADD MirrorSourceConnector.json /scripts/MirrorSourceConnector.json
 
-# mirror-maker 1.x
-CMD ["bash", "-c", "kafka-mirror-maker --consumer.config ${CONSUMER_CONFIG} --producer.config ${PRODUCER_CONFIG} --num.streams ${NUM_THREADS} --whitelist='.*'"]
+ADD MirrorCheckpointConnector.json /scripts/MirrorCheckpointConnector.json
+
+ADD MirrorHeartbeatConnector.json /scripts/MirrorHeartbeatConnector.json
+
+RUN ["chmod", "+x", "/etc/confluent/docker/first-start.sh"]
