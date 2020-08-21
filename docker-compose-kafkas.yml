@@ -14,6 +14,7 @@ services:
     ports:
       - 2181:2181
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -33,10 +34,56 @@ services:
     depends_on:
       - zookeeper-1
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#      KAFKA_REPLICATION_FACTOR: 1
+    networks:
+      - kafka1
+
+  kafka-2:
+    container_name: kafka-2
+    ports:
+      - 19092:19092
+    image: confluentinc/cp-kafka:5.2.2
+    links:
+      - zookeeper-1
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:19092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#      KAFKA_REPLICATION_FACTOR: 1
+    networks:
+      - kafka1
+
+  kafka-3:
+    container_name: kafka-3
+    ports:
+      - 29092:29092
+    image: confluentinc/cp-kafka:5.2.2
+    links:
+      - zookeeper-1
+    depends_on:
+      - zookeeper-1
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:29092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#      KAFKA_REPLICATION_FACTOR: 1
     networks:
       - kafka1
 
@@ -46,6 +93,7 @@ services:
     ports:
       - 32181:32181
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
@@ -65,21 +113,68 @@ services:
     depends_on:
       - zookeeper-4
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-4:32181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-4:39092
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#      KAFKA_REPLICATION_FACTOR: 1
     networks:
       - kafka2
 
-  schema-registry:
-    container_name: schema-registry
+  kafka-5:
+    container_name: kafka-5
+    ports:
+      - 49092:49092
+    image: confluentinc/cp-kafka:5.5.1
+    links:
+      - zookeeper-4
+    depends_on:
+      - zookeeper-4
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-4:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-5:49092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#      KAFKA_REPLICATION_FACTOR: 1
+    networks:
+      - kafka2
+
+  kafka-6:
+    container_name: kafka-6
+    ports:
+      - 59092:59092
+    image: confluentinc/cp-kafka:5.5.1
+    links:
+      - zookeeper-4
+    depends_on:
+      - zookeeper-4
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-4:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-6:59092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#      KAFKA_REPLICATION_FACTOR: 1
+    networks:
+      - kafka2
+
+  schema-registry-1:
+    container_name: schema-registry-1
     image: confluentinc/cp-schema-registry:5.2.2
     restart: always
     depends_on:
       - zookeeper-1
       - kafka-1
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper-1:2181"
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8085"
@@ -90,19 +185,85 @@ services:
     networks:
       - kafka1
 
-  schema-registry-ui:
-    container_name: schema-registry-ui
+  schema-registry-ui-1:
+    container_name: schema-registry-ui-1
     image: landoop/schema-registry-ui:latest
     restart: always
     depends_on:
       - zookeeper-1
       - kafka-1
-      - schema-registry
+      - schema-registry-1
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
       PORT: 8082
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMAREGISTRY_URL: "http://schema-registry:8085"
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry-1
+      SCHEMAREGISTRY_URL: "http://schema-registry-1:8085"
     ports:
       - 8082:8082
     networks:
       - kafka1
+
+  schema-registry-4:
+    container_name: schema-registry-4
+    image: confluentinc/cp-schema-registry:5.2.2
+    restart: always
+    depends_on:
+      - zookeeper-4
+      - kafka-4
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper-4:32181"
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8086"
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,OPTIONS"
+      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
+    ports:
+      - 8086:8086
+    networks:
+      - kafka2
+
+  schema-registry-ui-4:
+    container_name: schema-registry-ui-4
+    image: landoop/schema-registry-ui:latest
+    restart: always
+    depends_on:
+      - zookeeper-4
+      - kafka-4
+      - schema-registry-4
+    environment:
+      PORT: 8084
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry-4
+      SCHEMAREGISTRY_URL: "http://schema-registry-1:8086"
+    ports:
+      - 8084:8084
+    networks:
+      - kafka2
+
+  mirror-maker-1:
+    container_name: mirror-1
+    build: ./mirror_maker
+    ports:
+      - 19083:8083
+    volumes:
+      #      - ./mirror_maker/mm2.properties:/etc/mm2.properties
+      - ./mirror_maker/log4j.properties:/etc/kafka/connect-log4j.properties
+      - ./mirror_maker/kafka-mirror-custom-policies-0.0.1-SNAPSHOT.jar:/usr/share/java/kafka/kafka-mirror-custom-policies-0.0.1-SNAPSHOT.jar
+    #    command: bash -c "/etc/kafka-connect/connect-start"
+    environment:
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx1024M"
+      CONNECT_BOOTSTRAP_SERVERS: "kafka-4:39092"
+      CONNECT_GROUP_ID: "mirror-maker"
+      CONNECT_CONFIG_STORAGE_TOPIC: "mm2-configs.src.internal"
+      CONNECT_OFFSET_STORAGE_TOPIC: "mm2-offsets.src.internal"
+      CONNECT_STATUS_STORAGE_TOPIC: "mm2-status.src.internal"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.converters.ByteArrayConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: 19083
+      CONFLUENT_VERSION: "5.5.0"
+    depends_on:
+      - kafka-1
+      - kafka-4
+    healthcheck:
+      disable: true
+    networks:
+      - kafka1
+      - kafka2
