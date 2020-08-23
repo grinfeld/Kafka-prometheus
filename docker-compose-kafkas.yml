@@ -232,7 +232,7 @@ services:
     environment:
       PORT: 8084
       SCHEMA_REGISTRY_HOST_NAME: schema-registry-4
-      SCHEMAREGISTRY_URL: "http://schema-registry-1:8086"
+      SCHEMAREGISTRY_URL: "http://schema-registry-4:8086"
     ports:
       - 8084:8084
     networks:
