@@ -4,7 +4,6 @@
     "connector.class":"org.apache.kafka.connect.mirror.MirrorCheckpointConnector",
     "source.cluster.producer.bootstrap.servers":"kafka-1:9092",
     "topics":"_schemas",
-    "replication.policy.class":"com.dynamicyield.kafka.mirror.policies.NoPrefixReplicationPolicy",
     "source.cluster.alias":"src",
     "source.cluster.bootstrap.servers":"kafka-1:9092",
     "target.cluster.producer.bootstrap.servers":"kafka-4:39092",
