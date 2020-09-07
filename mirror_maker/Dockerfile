@@ -1,5 +1,7 @@
 FROM confluentinc/cp-kafka-connect
 
+RUN apt-get update && apt-get install procps -y && apt-get install curl -y && apt-get install net-tools -y && apt-get install telnet -y
+
 ADD first-start.sh /etc/confluent/docker/first-start.sh
 
 VOLUME ["/scripts"]
