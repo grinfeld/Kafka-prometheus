@@ -50,7 +50,7 @@ After the connector is up - setting its configuration by creating/posting config
 
 
 
-[Here example of docker](docker-compose-debezium-mysql.yaml). You need to have [kafka, zookeeper](docker-compose-kafkas-light.yml)
+[Here](docker-compose-debezium-mysql.yaml) example of docker. You need to have kafka, zookeeper [docker file](docker-compose-kafkas-light.yml)
 
 Before starting create network:
 
