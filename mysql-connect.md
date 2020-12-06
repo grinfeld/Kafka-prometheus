@@ -28,7 +28,7 @@ Ensure you have permissions:
 
     GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'user' IDENTIFIED BY 'password';
 
-After the connector is up - setting its configuration by creating/posting configuration as appears in example below:
+After the connector is up - set its configuration by creating/posting configuration as appears in example below:
 
     {
     "name": "inventory-connector",
