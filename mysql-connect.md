@@ -56,4 +56,6 @@ Before starting create network:
 
     docker network create -d bridge kafka
 
-During initial fist time start up, connector will take current snapshot of data, and then run binlog data and every time we made change on selected tables, it will send the update to kafka-topic
+During initial fist time start up, connector will take the current snapshot of data, populate relevant kafka topic (according to connector configuration - by default table name), 
+and every time we made change on selected tables, it will send the update to appropriate kafka topic.
+
