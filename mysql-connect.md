@@ -44,6 +44,7 @@ After the connector is up - set its configuration by creating/posting configurat
             "database.whitelist": "inventory",
             "database.history.kafka.bootstrap.servers": "kafka-1:9092",
             "database.history.kafka.topic": "schema-changes.inventory",
+            "snapshot.mode": "when_needed",
             "table.include.list": "inventory.customers,inventory.addresses,inventory.geom,inventory.orders,inventory.products"
         }
     }
