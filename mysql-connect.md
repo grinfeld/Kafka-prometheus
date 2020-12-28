@@ -14,7 +14,7 @@ Connect to mysql docker (**docker ps**)
 
     docker -f docker-compose-debezium-mysql.yaml exec -it dockerId /bin/bash
 
-open for edit (you'll need to install **vim** for the container used in this docker) **/etc/mysql/my.cnf**, find or create section **[mysqld]**:
+open for edit (you'll need to install **vim** for the container used in this docker `apt-get update && apt-get install -y vim`) **/etc/mysql/my.cnf**, find or create section **[mysqld]**:
 
     [mysqld]
     log-bin=mysql-bin.log
