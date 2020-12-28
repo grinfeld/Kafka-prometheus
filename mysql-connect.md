@@ -49,7 +49,7 @@ After the connector is up - set its configuration by creating/posting configurat
         }
     }
 
-
+* Note: "snapshot.mode" defines the behaviour of connect when it starts. The default value is "initial", means connect makes snapshot only once when it starts the first time. The "when_needed" - it creates snapshot every time when some problem exists, like expired offsets, values and so on.
 
 [Here](docker-compose-debezium-mysql.yaml) example with docker-compose. You need to have kafka, zookeeper, so [here](docker-compose-kafkas-light.yml) docker-compose file with kafka and so on.
 
@@ -59,4 +59,6 @@ Before starting create network:
 
 During initial fist time start up, connector will take the current snapshot of data, populate relevant kafka topic (according to connector configuration - by default table name), 
 and every time we made change on selected tables, it will send the update to appropriate kafka topic.
+
+* Note: For globalStore, seems we need some intermediate topic, since querying globalState created from original CDC topic (with its complex structure) cause globalStore to be non-queryable.
 
