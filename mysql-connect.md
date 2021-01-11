@@ -53,7 +53,10 @@ After the connector is up - set its configuration by creating/posting configurat
         }
     }
 
-* Note: "snapshot.mode" defines the behaviour of connect when it starts. The default value is "initial", means connect makes snapshot only once when it starts the first time. The "when_needed" - it creates snapshot every time when some problem exists, like expired offsets, values and so on.
+* Note: "snapshot.mode" defines the behaviour of connect when it starts. The default value is ``initial``, means connect makes snapshot only once when it starts the first time. The ``when_needed`` - it creates snapshot every time when some problem exists, like expired offsets, values and so on.
+* If default number of patitions in kafka has high value, create debezium topics manually and with with one partition. There is no reason for many partitions for debezium topics.
+* despite debezium creates history topic during connector first start, it maybe better to create this topic manually before with following config: ``retention.ms=9223372036854775807,cleanup.policy=delete,retention.bytes=-1``.  Except retention, other values actually are default.
+
 
 [Here](docker-compose-debezium-mysql.yaml) example with docker-compose. You need to have kafka, zookeeper, so [here](docker-compose-kafkas-light.yml) docker-compose file with kafka and so on.
 
